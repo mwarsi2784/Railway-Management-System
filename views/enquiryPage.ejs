@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Search Journey</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 30px;
+      background-color: white; /* Changed the background to white */
+      color: black; /* Set the text color to black for the entire page */
+    }
+    h1 {
+      text-align: center;
+      color: black; /* Set h1 text color to black */
+    }
+    form {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 600px;
+      margin: auto;
+      box-shadow: 0 0 15px rgba(0,128,0,0.2);
+    }
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 600;
+      color: black; /* Ensure the label text is black */
+    }
+    select, input[type="date"] {
+      width: 70%;
+      padding: 8px 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    button {
+      width: 50%;
+      padding: 12px;
+      background-color: #32CD32;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      cursor: pointer;
+      display: block;
+      margin: 20px auto 0;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #228B22;
+    }
+    .bottom-btn-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+
+
+
+  <form action="/user/getEnquiryResults" method="POST">
+
+    <h1>Search Journey</h1>
+    <label for="start">Starting Point:</label>
+    <select name="start" id="start" required>
+      <option value="">-- Select Starting Station --</option>
+      <% stations.forEach(station => { %>
+        <option value="<%= station.sname %>"><%= station.sname %></option>
+      <% }) %>
+    </select>
+
+    <label for="destination">Destination Point:</label>
+    <select name="destination" id="destination" required>
+      <option value="">-- Select Destination Station --</option>
+      <% stations.forEach(station => { %>
+        <option value="<%= station.sname %>"><%= station.sname %></option>
+      <% }) %>
+    </select>
+
+    <label for="doj">Date of Journey:</label>
+    <input type="date" name="doj" id="doj" required>
+
+    <button type="submit">Search</button>
+
+    <div class="bottom-btn-container">
+      <button class="dashboard-btn" onclick="goToDashboard()">Go To Dashboard</button>
+    </div>
+  </form>
+
+
+
+<script>
+  function goToDashboard() {
+    window.location.href = "/user/getDashboard";
+  }
+</script>
+</body>
+</html>

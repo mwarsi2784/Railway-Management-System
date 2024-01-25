@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Railway Management System</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: 2rem auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 15px;
+            font-size: 1.8rem;
+        }
+        .add-form {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+        }
+        .add-form input, .add-form select, .add-form button {
+            padding: 8px;
+            font-size: 0.9rem;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            width: 108px;
+        }
+        .add-form button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .add-form button:hover {
+            background-color: #45a049;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        table th, table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+            font-size: 0.9rem;
+        }
+        table th {
+            background-color: #4CAF50;
+            color: white;
+        }
+        table tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .actions button {
+            padding: 6px 10px;
+            border: none;
+            color: white;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-right: 5px;
+        }
+        .edit-btn {
+            background-color: #008CBA;
+        }
+        .edit-btn:hover {
+            background-color: #007bb5;
+        }
+        .delete-btn {
+            background-color: #f44336;
+        }
+        .delete-btn:hover {
+            background-color: #e53935;
+        }
+        .dashboard-btn-container {
+            text-align: center;
+            margin-top: 40px;
+        }
+        .dashboard-btn {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 25px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .dashboard-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Trains</h1>
+
+    <!-- Add New Train Form -->
+    <form class="add-form" id="addTrainForm">
+        <input type="text" name="tname" placeholder="Train Name" required>
+        <select name="sp" required>
+            <option value="">Start Point</option>
+            <% stations.forEach(function(station) { %>
+                <option value="<%= station.sname %>"><%= station.sname %></option>
+            <% }); %>
+        </select>
+        <input type="time" name="st" required>
+        <select name="dp" required>
+            <option value="">Destination Point</option>
+            <% stations.forEach(function(station) { %>
+                <option value="<%= station.sname %>"><%= station.sname %></option>
+            <% }); %>
+        </select>
+        <input type="time" name="dt" required>
+        <input type="number" name="distance" placeholder="Distance (km)" required>
+        <input type="text" name="dd" placeholder="Day (e.g., Day 1)" required>
+        <button type="submit">Add Train</button>
+    </form>
+
+    <!-- Trains Table -->
+    <table id="trainTable">
+        <thead>
+            <tr>
+                <th>Train No</th>
+                <th>Train Name</th>
+                <th>Start Point</th>
+                <th>Start Time</th>
+                <th>Destination Point</th>
+                <th>Destination Time</th>
+                <th>Distance</th>
+                <th>Day</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% trains.forEach(function(train) { %>
+                <tr id="row-<%= train.trainno %>">
+                    <td><%= train.trainno %></td>
+                    <td><%= train.tname %></td>
+                    <td><%= train.sp %></td>
+                    <td><%= train.st %></td>
+                    <td><%= train.dp %></td>
+                    <td><%= train.dt %></td>
+                    <td><%= train.distance %></td>
+                    <td><%= train.dd %></td>
+                    <td class="actions">
+                        <!-- <button class="edit-btn" onclick="editTrain(<%=train.trainno%>)">Edit</button> -->
+                        <button class="delete-btn" onclick="deleteTrain(<%=train.trainno%>)">Delete</button>
+                    </td>
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+
+    <!-- Go To Dashboard Button -->
+    <div class="dashboard-btn-container">
+        <button class="dashboard-btn" onclick="goToDashboard()">Go To Dashboard</button>
+    </div>
+</div>
+
+<script>
+document.getElementById('addTrainForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    const formData = new FormData(this);
+    const data = new URLSearchParams(formData).toString();
+
+    fetch('/admin/enterNewTrain', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+        body: data
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert('Train added successfully!');
+            window.location.reload();
+        } else {
+            alert('Failed to add train.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error adding train.');
+    });
+});
+
+function editTrain(trainNo) {
+    const newTname = prompt('Enter new Train Name:');
+    const newSp = prompt('Enter new Start Point:');
+    const newSt = prompt('Enter new Start Time (HH:MM):');
+    const newDp = prompt('Enter new Destination Point:');
+    const newDt = prompt('Enter new Destination Time (HH:MM):');
+    const newDistance = prompt('Enter new Distance:');
+    const newDd = prompt('Enter new Day (e.g., Day 1):');
+
+    if (!newTname || !newSp || !newSt || !newDp || !newDt || !newDistance || !newDd) {
+        alert('All fields are required.');
+        return;
+    }
+
+    fetch('/admin/editTrain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            trainno: trainNo,
+            tname: newTname,
+            sp: newSp,
+            st: newSt,
+            dp: newDp,
+            dt: newDt,
+            distance: newDistance,
+            dd: newDd
+        })
+    })
+    .then(response => response.json())
+    .then(result => {
+        if (result.success) {
+            alert('Train updated successfully!');
+            window.location.reload();
+        } else {
+            alert('Failed to update train.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error updating train.');
+    });
+}
+
+function deleteTrain(trainNo) {
+    if (confirm('Are you sure you want to delete this train?')) {
+        fetch('/admin/deleteTrain', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `trainno=${trainNo}`
+        })
+        .then(response => response.json())
+        .then(result => {
+            if (result.success) {
+                alert('Train deleted successfully!');
+                document.getElementById(`row-${trainNo}`).remove();
+            } else {
+                alert('Failed to delete train.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error deleting train.');
+        });
+    }
+}
+
+function goToDashboard() {
+    window.location.href = "/admin/getDashboard";
+}
+</script>
+
+</body>
+</html>

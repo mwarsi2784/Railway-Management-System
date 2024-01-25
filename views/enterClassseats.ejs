@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Railway Management System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 30px;
+            background-color: white;
+            color: black; /* changed to black for all text */
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        h1 {
+            color: black; /* heading color is black */
+        }
+        h2 {
+            color: #006400;
+        }
+        form {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 0 15px rgba(0,128,0,0.2);
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: 600;
+            color: #004d00;
+        }
+        select, input[type="date"], input[type="number"] {
+            width: 70%;
+            padding: 8px 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .class-box {
+            border: 2px solid #32CD32;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background-color: #e6ffe6;
+        }
+        button {
+            width: 50%;
+            padding: 12px;
+            background-color: #32CD32;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #228B22;
+        }
+        .dashboard-wrapper {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .dashboard-btn {
+            background-color: #32CD32;
+            color: white; /* button text is white */
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .dashboard-btn:hover {
+            background-color: #228B22;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Manage Class Seats</h1>
+
+    <form id="classSeatsForm">
+        <label>Train Number:</label>
+        <select id="trainno" required>
+            <option value="">-- Select Train --</option>
+            <% trains.forEach(train => { %>
+                <option value="<%= train.trainno %>"><%= train.trainno %> - <%= train.tname %></option>
+            <% }) %>
+        </select>
+
+        <label>Date of Journey (DOJ):</label>
+        <input type="date" name="doj" id="doj" required>
+
+        <h2>Class Details</h2>
+
+        <% classes.forEach(classItem => { %>
+            <div class="class-box">
+                <h3 style="text-align:center;"><%= classItem.cname %></h3>
+                <input type="hidden" name="class" value="<%= classItem.cname %>">
+
+                <label>Fare:</label>
+                <input type="number" name="fare_<%= classItem.cname %>" required>
+
+                <label>Seats Left:</label>
+                <input type="number" name="seatsleft_<%= classItem.cname %>" required>
+            </div>
+        <% }) %>
+
+        <button type="submit">Submit Class Seats</button>
+    </form>
+
+    <div class="dashboard-wrapper">
+        <button class="dashboard-btn" onclick="goToDashboard()">Go to Dashboard</button>
+    </div>
+
+    <script>
+document.getElementById('classSeatsForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+
+    const trainno = document.getElementById('trainno').value;
+    const doj = document.getElementById('doj').value;
+
+    const classes = <%- JSON.stringify(classes) %>;
+
+    let allSuccessful = true;
+
+    for (const classItem of classes) {
+        const cname = classItem.cname;
+        const fare = document.querySelector(`input[name="fare_${cname}"]`).value;
+        const seatsleft = document.querySelector(`input[name="seatsleft_${cname}"]`).value;
+
+        const bodyData = {
+            trainno: trainno,
+            doj: new Date(doj).toISOString().split('T')[0],
+            classs: cname,
+            fare: fare,
+            seatsleft: seatsleft
+        };
+
+        try {
+            const response = await fetch('/admin/enterClassseats', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(bodyData)
+            });
+
+            if (!response.ok) {
+                allSuccessful = false;
+                alert('Failed to add seats for class ' + cname);
+            }
+        } catch (error) {
+            allSuccessful = false;
+            console.error('Error:', error);
+            alert('Error while adding seats for class ' + cname);
+        }
+    }
+
+    if (allSuccessful) {
+        alert('Class seats data submitted successfully!');
+        window.location.reload();
+    }
+});
+
+    function goToDashboard() {
+        window.location.href = "/admin/getDashboard";
+    }
+</script>
+
+</body>
+</html>

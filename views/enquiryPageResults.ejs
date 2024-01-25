@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Enquiry Results</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5fff5;
+            padding: 30px;
+        }
+        h1, h2 {
+            text-align: center;
+            color: #006400;
+        }
+        table {
+            margin: 0 auto 40px;
+            width: 90%;
+            border-collapse: collapse;
+            background-color: #ffffff;
+            box-shadow: 0 0 10px rgba(0,128,0,0.1);
+        }
+        th, td {
+            padding: 12px 20px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+        th {
+            background-color: #32CD32;
+            color: white;
+        }
+        tr:nth-child(even) {
+            background-color: #f0fff0;
+        }
+        form {
+            max-width: 600px;
+            margin: auto;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,128,0,0.2);
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            color: #004d00;
+            font-weight: 600;
+        }
+        select, input[type="number"], input[type="date"] {
+            width: 100%;
+            padding: 8px 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+        }
+        button {
+            width: 100%;
+            padding: 12px;
+            background-color: #32CD32;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #228B22;
+        }
+        .bottom-btn-container {
+            display: flex;
+            justify-content: center;
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Available Trains</h1>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Train No</th>
+                <th>Date of Journey</th>
+                <th>Class</th>
+                <th>Fare</th>
+                <th>Seats Left</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% results.forEach(row => { %>
+                <tr>
+                    <td><%= row.trainno %></td>
+                    <td><%= row.doj.toLocaleDateString('en-CA') %></td>
+                    <td><%= row.class %></td>
+                    <td><%= row.fare %></td>
+                    <td><%= row.seatsleft %></td>
+                </tr>
+            <% }) %>
+        </tbody>
+    </table>
+
+    <h2>Book Tickets</h2>
+
+    <%
+        const uniqueTrains = [];
+        const uniqueClasses = [];
+        results.forEach(r => {
+            if (!uniqueTrains.includes(r.trainno)) {
+                uniqueTrains.push(r.trainno);
+            }
+            if (!uniqueClasses.includes(r.class)) {
+                uniqueClasses.push(r.class);
+            }
+        });
+    %>
+
+    <form action="/user/bookTickets" method="POST">
+        <label for="trainno">Train Number:</label>
+        <select name="trainno" id="trainno" required>
+            <option value="">-- Select Train --</option>
+            <% uniqueTrains.forEach(train => { %>
+                <option value="<%= train %>"><%= train %></option>
+            <% }) %>
+        </select>
+
+        <label for="doj">Date of Journey:</label>
+        <input type="date" name="doj" id="doj" required>
+
+        <label for="class">Class:</label>
+        <select name="classs" id="class" required>
+            <option value="">-- Select Class --</option>
+            <% uniqueClasses.forEach(cls => { %>
+                <option value="<%= cls %>"><%= cls %></option>
+            <% }) %>
+        </select>
+
+        <label for="tickets">No. of Tickets:</label>
+        <input type="number" name="tickets" id="tickets" min="1" required>
+
+        <button type="submit">Book Tickets</button>
+
+        <div class="bottom-btn-container">
+            <button class="dashboard-btn" onclick="goToDashboard()">Go To Dashboard</button>
+        </div>
+        
+    </form>
+
+
+<script>
+  function goToDashboard() {
+    window.location.href = "/user/getDashboard";
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Railway Management System</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 30px;
+            background-color: white;
+            color: black;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        h1 {
+            color: black;
+        }
+        h2 {
+            color: #006400;
+        }
+        form {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 600px;
+            margin: auto;
+            box-shadow: 0 0 15px rgba(0,128,0,0.2);
+        }
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: 600;
+            color: #004d00;
+        }
+        input, select {
+            width: 70%;
+            padding: 8px 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .passenger-box {
+            border: 2px solid #32CD32;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            background-color: #e6ffe6;
+        }
+        button {
+            width: 50%;
+            padding: 12px;
+            background-color: #32CD32;
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            display: block;
+            margin: 20px auto 0;
+            transition: background-color 0.3s ease;
+        }
+        button:hover {
+            background-color: #228B22;
+        }
+        .dashboard-wrapper {
+            text-align: center;
+            margin-top: 30px;
+        }
+        .dashboard-btn {
+            background-color: #32CD32;
+            color: white;
+            padding: 10px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .dashboard-btn:hover {
+            background-color: #228B22;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Add Passenger Details</h1>
+
+    <form id="passengerForm">
+        <h2>PNR: <%= pnr %></h2>
+        <input type="hidden" name="pnr" id="pnr" value="<%= pnr %>">
+
+        <% for (let i = 0; i < nos; i++) { %>
+            <div class="passenger-box">
+                <h3 style="text-align:center;">Passenger <%= i + 1 %></h3>
+
+                <label for="pname_<%= i %>">Name:</label>
+                <input type="text" name="pname_<%= i %>" id="pname_<%= i %>" required>
+                <label for="page_<%= i %>">Age:</label>
+                <input type="number" name="page_<%= i %>" id="page_<%= i %>" required>
+
+                <label for="pgender_<%= i %>">Gender:</label>
+                <select name="pgender_<%= i %>" id="pgender_<%= i %>" required>
+                    <option value="">Select Gender</option>
+                    <option value="M">Male</option>
+                    <option value="F">Female</option>
+                </select>
+            </div>
+        <% } %>
+
+        <button type="submit">Submit Passengers</button>
+    </form>
+
+    <script>
+
+        document.getElementById('passengerForm').addEventListener('submit', async function (event) {
+            event.preventDefault();
+
+            const pnr = document.getElementById('pnr').value;
+            const nos = <%= nos %>;
+            let allSuccessful = true;
+
+            for (let i = 0; i < nos; i++) {
+                const pname = document.getElementById(`pname_${i}`).value.trim();
+                const page = parseInt(document.getElementById(`page_${i}`).value.trim(), 10);
+                const pgender = document.getElementById(`pgender_${i}`).value;
+
+                const passengerData = {
+                    pnr: pnr,
+                    pname: pname,
+                    pgender: pgender,
+                    page: page
+                };
+
+                try {
+                    const response = await fetch('/user/addPassenger', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(passengerData)
+                    });
+
+                    if (!response.ok) {
+                        allSuccessful = false;
+                        alert('Failed to add passenger ' + (i + 1));
+                    }
+                } catch (error) {
+                    allSuccessful = false;
+                    console.error('Error:', error);
+                    alert('Error while adding passenger ' + (i + 1));
+                }
+            }
+
+            if (allSuccessful) {
+                alert('All passengers added successfully!');
+                window.location.href = "/user/getDashboard";
+            }
+        });
+    </script>
+
+</body>
+</html>

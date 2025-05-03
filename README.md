@@ -71,8 +71,8 @@ The system uses triggers to maintain integrity. For example:
 
 
 # 2. Clone the Project Repository
-git clone https://github.com/mwarsi2784/Railway-Mnagement-System.git
-cd Railway-Mnagement-System
+git clone https://github.com/mwarsi2784/Railway-Management-System.git
+cd Railway-Management-System
 
 
 # 3. Install Node.js Dependencies
@@ -83,7 +83,7 @@ npm install
 
 # 👉 Open MySQL Workbench
 # 👉 Create a new database named `railway_management`
-# 👉 Import the provided SQL file (railway_management.sql) to create tables and insert initial data // admin_name is zulqarnain and password is abcd'
+# 👉 Import the provided SQL file (railway_management_system.sql) to create tables and insert initial data // admin_name is zulqarnain and password is abcd'
 
 
 
